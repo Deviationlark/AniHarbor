@@ -1,0 +1,131 @@
+import {useParams} from "react-router";
+import {useEffect, useState} from "react";
+
+type node = {
+    name: string;
+}
+
+interface title {
+    english: string;
+}
+
+interface cover {
+    medium: string;
+    large: string;
+    extraLarge: string;
+}
+
+interface studios {
+    nodes: node[];
+}
+interface Anime {
+    id: number;
+    title:title,
+    description: string;
+    genres: string[];
+    episodes: number;
+    studios: studios;
+    coverImage: cover;
+}
+
+
+
+
+async function getAnime(id: number) {
+    // Here we define our query as a multi-line string
+// Storing it in a separate .graphql/.gql file is also possible
+    const query = `
+query ($id: Int) {
+  Media(id:$id, type:ANIME) {
+    id
+    title {
+      english
+    }
+    description
+    genres
+    episodes
+    studios {
+      nodes {
+        name
+      }
+    }
+    coverImage {
+      extraLarge
+    }
+  }
+}
+`;
+// Define our query variables and values that will be used in the query request
+    const variables = {
+        id:id,
+    }
+
+// Define the config we'll need for our Api request
+    const url = 'https://graphql.anilist.co',
+        options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                query: query,
+                variables: variables
+            })
+        };
+
+// Make the HTTP Api request
+    async function handleResponse(response: Response) {
+        const json = await response.json();
+        return response.ok ? json : Promise.reject(json);
+    }
+
+    function handleError(error:string) {
+        alert('Error, check console');
+        console.error(error);
+    }
+    return await fetch(url, options).then(handleResponse).catch(handleError);
+}
+
+function Anime() {
+    const {id} = useParams()
+    const [anime, setAnime] = useState<Anime>();
+    const [isLoaded,setLoaded] = useState(false)
+    const getAnimeData = async () => {
+        console.log(anime);
+        if (!anime) {
+            const data = await getAnime(Number(id));
+            console.log(data)
+            await setAnimeData(data.data.Media)
+        }
+    }
+    const setAnimeData = async (anime: Anime) => {
+        console.log(anime);
+        setAnime(anime)
+        setLoaded(true);
+    }
+    useEffect(() => {
+        getAnimeData()
+    }, []);
+    if (!isLoaded) {
+        return <div>Loading...</div>
+    }
+    return (
+        <div>
+            <h1>{anime?.title.english}</h1>
+            <img src={anime?.coverImage.extraLarge} alt={anime?.title.english}/>
+            <div>
+                <div>Episodes: {anime?.episodes}</div>
+                <div>Genres: {anime?.genres.map((genre: string) => {
+                    return (<div key={genre}>{genre}</div>)
+                })}</div>
+                <div>Studios: {anime?.studios.nodes.map((node: node) => {
+                    return (<div key={node.name}>{node.name}</div>)
+                })}</div>
+                <div>Description: <div dangerouslySetInnerHTML={{ __html: anime!.description}}></div></div>
+            </div>
+        </div>
+    )
+}
+
+export default Anime

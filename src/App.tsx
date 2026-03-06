@@ -1,3 +1,5 @@
+import {NavLink} from "react-router";
+
 interface title {
     english: string;
 }
@@ -89,9 +91,11 @@ function App() {
     const [data,setData] = useState<Anime>()
     const [loading, setLoading] = useState(true)
     const getAnimeData = async () => {
-        const animeData = await getData();
-        console.log(animeData);
-        await setAnimeData({animeData:animeData.data.Page.media});
+        if (!data) {
+            const animeData = await getData();
+            console.log(animeData);
+            await setAnimeData({animeData:animeData.data.Page.media});
+        }
     }
     const setAnimeData = async (data:Anime) => {
         setData(data);
@@ -108,11 +112,14 @@ function App() {
         <div>
             {data?.animeData.map((item: AnimeItem) => {
                 return (
-                    <div key={item.id}>
-                        <h1>{item.title.english}</h1>
-                        <img src={item.coverImage.extraLarge} alt={item.title.english} width="30%"/>
-                        <div><span>Episodes: {item.episodes}</span> <span>Average Rating: {item.averageScore}</span> <span>Status: {item.status}</span></div>
-                    </div>
+                        <div key={item.id}>
+                            <h1>{item.title.english}</h1>
+                            <NavLink to={`/anime/${item.id}`}>
+                            <img src={item.coverImage.extraLarge} alt={item.title.english} width="30%"/>
+                            </NavLink>
+                            <div><span>Episodes: {item.episodes}</span> <span>Average Rating: {item.averageScore}</span> <span>Status: {item.status}</span></div>
+                        </div>
+
                 )
             })}
     </div>
