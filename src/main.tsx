@@ -11,8 +11,8 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <BrowserRouter>
           <Routes>
-              <Route path="/">
-                  <Route index element={<App />} />
+              <Route path="/" element={<App />}>
+                  <Route path={'/?page=:page'} element={<App />} />
               </Route>
               <Route path="/anime/:id" element={<Anime />} />
               <Route path="/search" element={<Search />} />

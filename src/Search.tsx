@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {NavLink} from "react-router";
 import * as sea from "node:sea";
+import NavBar from "./NavBar.tsx";
 interface title {
     english: string;
     romaji: string;
@@ -109,6 +110,7 @@ function Search() {
     }
     return (
         <div>
+            <NavBar />
             Anime:
             <input type="text" placeholder="Search by anime name" value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 if (e.target != null) {

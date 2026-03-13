@@ -1,4 +1,4 @@
-import {NavLink} from "react-router";
+import {NavLink, useParams} from "react-router";
 
 interface title {
     english: string;
@@ -25,6 +25,7 @@ interface Anime {
 }
 
 import {useEffect, useState} from "react";
+import NavBar from "./NavBar.tsx";
 
 function getData( page:number) {
     // Here we define our query as a multi-line string
@@ -90,42 +91,43 @@ query ($page:Int,$seasonYear:Int, $season:MediaSeason,$perPage:Int,$sort:[MediaS
 }
 
 function App() {
+    const {pageId} = useParams();
     const [data,setData] = useState<Anime>()
     const [page,setPage] = useState(1)
     const [loading, setLoading] = useState(true)
-    const getAnimeData = async () => {
+    const getAnimeData = async (page:number) => {
         if (localStorage.getItem('page' + page)===null) {
             const animeData = await getData(page);
             console.log(animeData);
-            await setAnimeData({animeData:animeData.data.Page.media});
+            await setAnimeData({animeData:animeData.data.Page.media},page);
             localStorage.setItem('page' + page, JSON.stringify({animeData:animeData.data.Page.media}));
         }
         else {
             const animeData = JSON.parse(localStorage.getItem('page' + page) as string);
-            await setAnimeData(animeData);
+            await setAnimeData(animeData,page);
         }
+
     }
-    const setAnimeData = async (data:Anime) => {
+    const setAnimeData = async (data:Anime,page:number) => {
         setData(data);
         setLoading(false);
+        if (pageId !== undefined) {
+            setPage(Number(page));
+        }
     }
     useEffect(() => {
-        getAnimeData()
+        console.log("AA")
+        getAnimeData(page)
     }, [])
     useEffect(() => {
-        getAnimeData()
+        getAnimeData(page)
     }, [page]);
     if (loading) {
         return (<div>Loading...</div>)
     }
   return (
     <>
-        <NavLink to={'/search'}>
-            <button>Search</button>
-        </NavLink>
-        <NavLink to={'/favorites'}>
-            <button>Favorites</button>
-        </NavLink>
+        <NavBar />
         <div>
             {data?.animeData.map((item: AnimeItem) => {
                 return (
@@ -140,15 +142,18 @@ function App() {
                 )
             })}
     </div>
-        <button onClick={() => {
-            if (page!==1) {
-                setPage(page => page-1)
-            }
-        }}>Previous Page</button>
-        <button onClick={() => {
-            setPage(page => page+1)
-        }}>Next Page</button>
-
+        <NavLink to={`/?page=${page>=2?page-1:page}`}>
+            <button onClick={() => {
+                if (page>=2) {
+                    setPage(page => page-1)
+                }
+            }}>Previous Page</button>
+        </NavLink>
+        <NavLink to={`/?page=${page+1}`}>
+            <button onClick={() => {
+                setPage(page => page+1)
+            }}>Next Page</button>
+        </NavLink>
     </>
   )
 }

@@ -1,6 +1,7 @@
 import {useParams} from "react-router";
 import {useEffect, useState} from "react";
 import * as sea from "node:sea";
+import NavBar from "./NavBar.tsx";
 
 type node = {
     name: string;
@@ -130,6 +131,7 @@ function Anime() {
     }
     return (
         <div>
+            <NavBar />
             <h1>{anime?.title.english}</h1>
             <img src={anime?.coverImage.extraLarge} alt={anime?.title.english}/>
             <div>

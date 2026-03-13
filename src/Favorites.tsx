@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {NavLink} from "react-router";
+import NavBar from "./NavBar.tsx";
 
 type node = {
     name: string;
@@ -56,6 +57,7 @@ function Favorites() {
     }, [])
     return (
         <>
+            <NavBar />
             {favoriteAnimes && favoriteAnimes.favoriteAnime.map((item) => {
                  return (
                     <div key={item.id}>
