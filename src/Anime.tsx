@@ -1,5 +1,6 @@
 import {useParams} from "react-router";
 import {useEffect, useState} from "react";
+import * as sea from "node:sea";
 
 type node = {
     name: string;
@@ -27,7 +28,9 @@ interface Anime {
     studios: studios;
     coverImage: cover;
 }
-
+interface Favorites {
+    favoriteAnime: Anime[];
+}
 
 
 
@@ -92,17 +95,32 @@ function Anime() {
     const [anime, setAnime] = useState<Anime>();
     const [isLoaded,setLoaded] = useState(false)
     const getAnimeData = async () => {
-        console.log(anime);
         if (!anime) {
             const data = await getAnime(Number(id));
-            console.log(data)
             await setAnimeData(data.data.Media)
         }
     }
     const setAnimeData = async (anime: Anime) => {
-        console.log(anime);
         setAnime(anime)
         setLoaded(true);
+    }
+    const addToFavorites= () => {
+        const search = localStorage.getItem('favorites')
+        if (search!==null && anime!==undefined) {
+            const favorites:Favorites = JSON.parse(search);
+            console.log(favorites);
+            favorites.favoriteAnime.push(anime);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        else if(search==null && anime!==undefined) {
+            const favorites:Favorites = {
+                favoriteAnime: [anime]
+            };
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        else {
+            Error("error anime is undefined")
+        }
     }
     useEffect(() => {
         getAnimeData()
@@ -124,6 +142,7 @@ function Anime() {
                 })}</div>
                 <div>Description: <div dangerouslySetInnerHTML={{ __html: anime!.description}}></div></div>
             </div>
+            <button onClick={addToFavorites}>Add to favorites</button>
         </div>
     )
 }

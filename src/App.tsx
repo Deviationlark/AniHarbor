@@ -123,6 +123,9 @@ function App() {
         <NavLink to={'/search'}>
             <button>Search</button>
         </NavLink>
+        <NavLink to={'/favorites'}>
+            <button>Favorites</button>
+        </NavLink>
         <div>
             {data?.animeData.map((item: AnimeItem) => {
                 return (
